@@ -880,7 +880,12 @@
                                         <div class="proportion-item-label">第三部分</div>
                                         <div class="proportion-item-value" id="split-33-3">--</div>
                                     </div>
+                                    <div class="proportion-item">
+                                        <div class="proportion-item-label">餘數</div>
+                                        <div class="proportion-item-value" id="split-33-remainder">--</div>
+                                    </div>
                                 </div>
+                                <div class="proportion-helper-text">結果固定為 4 位小數；若無法整除，餘數將顯示於『餘數』欄。</div>
                             </div>
                         </div>
                     </div>
@@ -1163,6 +1168,7 @@
                 document.getElementById(`split-33-1`).textContent = `--`;
                 document.getElementById(`split-33-2`).textContent = `--`;
                 document.getElementById(`split-33-3`).textContent = `--`;
+                document.getElementById(`split-33-remainder`).textContent = `--`;
                 return;
             }
 
@@ -1181,14 +1187,31 @@
             document.getElementById(`split-50-2`).textContent = split50_2.toFixed(4);
             document.getElementById(`split-50-remainder`).textContent = remainder.toFixed(4);
 
-            // 33/33/34 split with 4-decimal formatting
-            const split33_1 = totalShares * 0.33;
-            const split33_2 = totalShares * 0.33;
-            const split33_3 = totalShares - (split33_1 + split33_2);
+            // 33/33/34 split with 4-decimal truncation and remainder calculation
+            const scale = 10000; // 10^4 for 4 decimal places
             
-            document.getElementById(`split-33-1`).textContent = split33_1.toFixed(4);
-            document.getElementById(`split-33-2`).textContent = split33_2.toFixed(4);
-            document.getElementById(`split-33-3`).textContent = split33_3.toFixed(4);
+            // Calculate raw parts
+            const A_raw = totalShares * 0.33;
+            const B_raw = totalShares * 0.33;
+            const C_raw = totalShares * 0.34;
+            
+            // Truncate each to 4 decimals using Math.floor
+            const A = Math.floor(A_raw * scale) / scale;
+            const B = Math.floor(B_raw * scale) / scale;
+            const C = Math.floor(C_raw * scale) / scale;
+            
+            // Calculate remainder
+            let remainder33 = totalShares - (A + B + C);
+            
+            // Handle floating point precision issues - if extremely close to 0, set to 0
+            if (Math.abs(remainder33) < 1e-12) {
+                remainder33 = 0;
+            }
+            
+            document.getElementById(`split-33-1`).textContent = A.toFixed(4);
+            document.getElementById(`split-33-2`).textContent = B.toFixed(4);
+            document.getElementById(`split-33-3`).textContent = C.toFixed(4);
+            document.getElementById(`split-33-remainder`).textContent = remainder33.toFixed(4);
         }
 
         // Volatility Calculator
